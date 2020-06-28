@@ -52,7 +52,7 @@ def pipeline_acgpn(img, cloth, cloth_mask, opt):
     img = transform_B(img)
     
 
-    hp = HumanpartPredictor("LVIS-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_1x.yaml", "./checkpoint/model_0011999.pth")
+    hp = HumanpartPredictor("LVIS-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_1x.yaml", './checkpoint/model_0011999.pth')
     label = hp.predict(img)
     A_tensor = transform_A(label) * 255.0
 

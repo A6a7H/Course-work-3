@@ -159,6 +159,6 @@ class HumanpartPredictor:
         }
         concat_mask = torch.zeros((masks.shape[1], masks.shape[2]))
         for i, k in enumerate(outputs.pred_classes):
-            buff = np.where(masks[i], change_label[k], 0)
+            buff = np.where(masks[i], change_label[int(k)], 0)
             concat_mask = np.where(concat_mask == 0, buff, concat_mask)
         return concat_mask
