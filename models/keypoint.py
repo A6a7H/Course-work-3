@@ -43,6 +43,7 @@ class KeyPointPredictor:
 
     def setup_config(self):
         cfg = get_cfg()
+        cfg.MODEL.DEVICE='cpu'
         cfg.merge_from_file(model_zoo.get_config_file("COCO-Keypoints/keypoint_rcnn_X_101_32x8d_FPN_3x.yaml"))
         cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.7  # set threshold for this model
         cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-Keypoints/keypoint_rcnn_X_101_32x8d_FPN_3x.yaml")
@@ -57,4 +58,4 @@ class KeyPointPredictor:
 
     @staticmethod
     def format2viton(outputs):
-        return make_image(outputs)
+        return make_image(outputs, (256, 192))

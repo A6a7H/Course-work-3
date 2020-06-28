@@ -86,6 +86,7 @@ class Segmentator:
         cfg = get_cfg()
         cfg.merge_from_file(model_zoo.get_config_file(model))
         cfg.DATALOADER.NUM_WORKERS = 4
+        cfg.MODEL.DEVICE='cpu'
         cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 256
         cfg.MODEL.ROI_HEADS.NUM_CLASSES = 45
         cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.8

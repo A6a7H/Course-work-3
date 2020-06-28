@@ -1,9 +1,10 @@
 import cv2
 import numpy as np
 import torch
-from detectron2_repo.projects.DensePose.densepose import add_densepose_config
+from detectron2 import model_zoo
 from detectron2.config import get_cfg
 from detectron2.engine.defaults import DefaultPredictor
+from detectron2_repo.projects.DensePose.densepose import add_densepose_config
 
 
 class DensePosePredictor:
@@ -35,6 +36,7 @@ class DensePosePredictor:
         cfg = get_cfg()
         add_densepose_config(cfg)
         cfg.merge_from_file(self.cfg_path)
+        cfg.MODEL.DEVICE='cpu'
         cfg.MODEL.WEIGHTS = self.model_path
         cfg.freeze()
         return cfg
@@ -88,3 +90,75 @@ class DensePosePredictor:
                 return head, body
 
         return None, None
+
+
+class HumanpartPredictor:
+    """
+        Class that segmentate human body parts (head, body, arms, legs and e.g.)
+
+        Simple sequence to evaluate:
+
+        1. Initialize this class with model weights and configuration.
+        2. Set image to segmentate
+        3. Get predictions like image in 2d np.array format
+
+        If you'd like to do a simple prediction without anything more fancy, please refer to this example below,
+        for more information, please, see https://github.com/facebookresearch/detectron2/tree/master/projects/DensePose
+
+        Examples:
+
+        .. code-block:: python
+
+            dp = DensePosePredictor("detectron2_repo/projects/DensePose/configs/densepose_rcnn_R_50_FPN_s1x.yaml", "./models/densepose_rcnn_R_50_FPN_s1x.pkl")
+            image = cv2.imread("image2.jpg")  # predictor expects BGR image.
+            head, body = dp.predict(image) # get masks
+    """
+    def __init__(self, cfg_path, weight_path):
+        self.cfg_path = cfg_path
+        self.weight_path = weight_path
+
+    def setup_config(self):
+        cfg = get_cfg()
+        cfg.merge_from_file(model_zoo.get_config_file("LVIS-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_1x.yaml"))
+        cfg.MODEL.DEVICE='cpu'
+        cfg.MODEL.ROI_HEADS.NUM_CLASSES = 19
+        cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.65
+        cfg.MODEL.WEIGHTS = self.weight_path
+        cfg.freeze()
+        return cfg
+
+    def predict(self, img):
+        cfg = self.setup_config()
+        predictor = DefaultPredictor(cfg)
+        with torch.no_grad():
+            outputs = predictor(img)["instances"]
+            return HumanpartPredictor.concat_mask(outputs.pred_masks, outputs)
+
+    @staticmethod
+    def concat_mask(masks, outputs):
+        change_label = {
+            0: 0,
+            1: 1,
+            2: 1,
+            3: 12,
+            4: 4,
+            5: 8,
+            6: 4,
+            7: 6,
+            8: 8,
+            9: 4,
+            10: 4,
+            11: 8,
+            12: 12,
+            13: 11,
+            14: 13,
+            15: 9,
+            16: 10,
+            17: 5,
+            18: 6,
+        }
+        concat_mask = torch.zeros((masks.shape[1], masks.shape[2]))
+        for i, k in enumerate(outputs.pred_classes):
+            buff = np.where(masks[i], change_label[k], 0)
+            concat_mask = np.where(concat_mask == 0, buff, concat_mask)
+        return concat_mask
