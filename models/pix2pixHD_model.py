@@ -2,7 +2,7 @@ import numpy as np
 import torch
 import os
 from torch.autograd import Variable
-from util.image_pool import ImagePool
+from utils.utils import ImagePool
 import torch.nn as nn
 
 import cv2
@@ -36,6 +36,7 @@ def generate_discrete_label(inputs, label_nc, onehot=True, encode=True):
     input_label = input_label.scatter_(1, label_map.data.long().cuda(), 1.0)
 
     return input_label
+    
 def morpho(mask,iter,bigger=True):
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
     new=[]

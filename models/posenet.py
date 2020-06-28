@@ -119,7 +119,7 @@ class HumanpartPredictor:
 
     def setup_config(self):
         cfg = get_cfg()
-        cfg.merge_from_file(model_zoo.get_config_file("LVIS-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_1x.yaml"))
+        cfg.merge_from_file(model_zoo.get_config_file(self.cfg_path)) # "LVIS-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_1x.yaml"
         cfg.MODEL.DEVICE='cpu'
         cfg.MODEL.ROI_HEADS.NUM_CLASSES = 19
         cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.65

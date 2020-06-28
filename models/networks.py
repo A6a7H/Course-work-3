@@ -11,10 +11,8 @@ import itertools
 import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
-from grid_sample import grid_sample
 from torch.autograd import Variable
-from tps_grid_gen import TPSGridGen
-
+from utils.utils import TPSGridGen, grid_sample
 
 ###############################################################################
 # Functions
